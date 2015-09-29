@@ -1,0 +1,144 @@
+start = pattern
+
+pattern = element pattern {
+   identity,
+   element name { score, text },
+   element abstract { score, text },
+   metadata,
+   element context { score, text },
+   problem,
+   solution,
+   element evidence { score, text },
+   studies,
+   relations
+}
+
+metadata = element mdata {
+   element aliases { element alias { text }+ },
+   element tags    { element tag { text }+ },
+   element created   { text },
+   element modified  { text },
+   element evaluated { text },
+   element authors  { element author  { text }+ },
+   element auditors { element auditor { text }+ }
+}
+
+requirements = element requirements {
+   score,
+   (func | usab | reli | perf | supp )+
+}
+
+func = element functional     { identity, title, description }
+usab = element usability      { identity, title, description }
+reli = element reliability    { identity, title, description }
+perf = element performance    { identity, title, description }
+supp = element supportability { identity, title, description }
+
+
+problem = element problem {
+   score,
+   element title { text },
+   description,
+   requirements
+}
+
+
+solution = element solution {
+   element title { text },
+   description,
+   models,
+   element properties {
+      score,
+      property+
+   }
+}
+
+models = element models {
+   score,
+   (structure | dynamics)+
+}
+
+structure = element structure { score, title, description, model }
+dynamics  = element dynamics  { score, title, description, model }
+property  = element property  { score, title, description, traits }
+
+traits = element traits {
+   (advantage | disadvantage | general)+
+}
+
+advantage    = element advantage    { score, eValue, title, description, affects }
+disadvantage = element disadvantage { score, eValue, title, description, affects }
+general      = element general      { score, eValue, title, description, affects }
+
+affects = element affects {
+   element affect {
+      cValue,
+      attribute forceID { text },
+      text
+   }+
+}
+
+
+model = element model { modelTy, text }
+
+studies = element studies {
+   score,
+   element study {
+      element before { text },
+      element after  { text }
+   }+
+}
+
+relations = element relations {
+   score,
+   element link {
+      relationship,
+      attribute patternID { text },
+      text
+   }*
+}
+
+title       = element title { text }
+description = element desc { text }
+identity    = attribute id { text }
+
+
+score = attribute score {
+   "A"
+ | "B"
+ | "C"
+ | "D"
+ | "E"
+}
+
+sValue = attribute sValue {
+   "SATISFIED"
+ | "WEAKSATIS"
+ | "WEAKDEN"
+ | "DENIED"
+ | "UNKNOWN"
+}
+
+cValue = attribute cValue {
+   "MAKES"
+ | "HELPS"
+ | "SOMEPOS"
+ | "ZERO"
+ | "SOMENEG"
+ | "HURTS"
+ | "BREAKS"
+}
+
+relationship = attribute relationship {
+   "specialises"
+ | "implements"
+ | "uses"
+ | "linkedTo"
+}
+
+modelTy = attribute modelTy {
+   "class"
+ | "component"
+ | "sequence"
+ | "deployment"
+}

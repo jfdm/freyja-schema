@@ -1,0 +1,16 @@
+package freyja
+
+pkgs = xml
+     , containers
+     , grl
+     , edda
+     , effects
+
+modules = Freyja.Utils
+        , Freyja.Error
+        , Freyja.Types
+        , Freyja.Fetch
+        , Freyja.Extract
+        , Freyja.Convert.Edda
+        , Freyja.Convert.XML
+        , Freyja

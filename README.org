@@ -1,0 +1,9 @@
+#+TITLE: Freyja: A Pattern Document Description Schema
+
+* About 
+
+Freyja is a XML based document format for describing design
+patterns.  This repository contains the schema description and an
+Idris package for working with pattern documents, generating (and
+reading) XML documents, and conversion to other representation
+formats. 
