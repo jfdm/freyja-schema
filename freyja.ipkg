@@ -6,7 +6,8 @@ pkgs = xml
      , edda
      , effects
 
-modules = Freyja
+modules = Freyja.Common
+        , Freyja
         , Freyja.Utils
         , Freyja.Error
         , Freyja.Fetch

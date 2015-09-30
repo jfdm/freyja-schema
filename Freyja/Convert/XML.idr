@@ -42,7 +42,8 @@ convertMany p c f ns = foldl doFold (mkNode p) ns
     doFold p t = p <++> (mkNode c <=> (f t))
 
 convertEList : String -> String -> List EddaString -> XMLElem
-convertEList o i cs = convertMany o i inlines cs
+convertEList o i Nil = mkNode o <++> (mkNode i <=> "Fill me in")
+convertEList o i cs  = convertMany o i inlines cs
 
 
 -- ---------------------------------------------------------------- [ Metadata ]
