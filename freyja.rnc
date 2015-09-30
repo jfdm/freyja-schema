@@ -5,7 +5,7 @@ pattern = element pattern {
    name,
    element summary { score, text },
    metadata,
-   element context { score, text },
+   element context { score, name, description },
    problem,
    solution,
    element evidence { score, text },
@@ -13,7 +13,7 @@ pattern = element pattern {
    relations?
 }
 
-metadata = element mdata {
+metadata = element metadata {
    element aliases { element alias { text }+ },
    element tags    { element tag { text }+ },
    element created   { text },
@@ -37,7 +37,7 @@ supp = element supportability { identity, name, description }
 
 problem = element problem {
    score,
-   element title { text },
+   name,
    description,
    requirements
 }
@@ -56,7 +56,7 @@ models = element models {
 }
 
 structure = element structure { score, name, description, model }
-dynamics  = element dynamics  { score, name, description, model }
+dynamics  = element dynamic   { score, name, description, model }
 property  = element property  { score, name, description, traits }
 
 traits = element traits {
@@ -76,6 +76,7 @@ model = element model { text }
 studies = element studies {
    score,
    element study {
+      name,
       element before { text },
       element after  { text }
    }+

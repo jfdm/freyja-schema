@@ -22,6 +22,8 @@ import public Freyja.Error
 import Freyja.Fetch
 import Freyja.Utils
 
+import Debug.Trace
+
 -- ---------------------------------------------------------------- [ MetaData ]
 
 metadata : XMLDoc -> Extract Metadata
@@ -83,31 +85,36 @@ context doc = do
 
 -- ----------------------------------------------------------------- [ Affects ]
 
+tryGetReq : XMLElem -> Maybe (Sigma RTy Requirement)
+tryGetReq x = do
+  naam <- getNodeName x
+  ty   <- readRTy naam
+  case requirement ty (Node x) of
+    Left err => Nothing
+    Right r  => pure r
+
 getReqByID : String -> List XMLNode -> Extract (Sigma RTy Requirement)
-getReqByID _    Nil     = Left $ GeneralError "Requirement not found."
-getReqByID ival (x@(Node e@(Element _ _ _))::xs) =
-    case getAttribute ival e of
-      Just res =>
-        if res == ival
-          then tryGetReq x
-          else getReqByID ival xs
-      Nothing  => getReqByID ival xs
+getReqByID ival ns =
+    case foldl doFind Nothing ns of
+      Nothing => Left $ GeneralError ("Requirement not found.")
+      Just r  => pure r
   where
-    tryGetReq : XMLNode -> Extract (Sigma RTy Requirement)
-    tryGetReq x =
-      case (getNodeName x) of
-        Just "functional"      => requirement FUNC x
-        Just "usability"       => requirement USAB x
-        Just "reliability"     => requirement RELI x
-        Just "performance"     => requirement PERF x
-        Just "supportability"  => requirement SUPP x
-        Nothing                => Left $ GeneralError "Error"
-getReqByID ival (Node _::xs) = getReqByID ival xs
+    doFind : Maybe (Sigma RTy Requirement)
+          -> XMLNode
+          -> Maybe (Sigma RTy Requirement)
+    doFind res (Node e@(Element _ _ _)) =
+      case getAttribute "id" e of
+        Nothing => res
+        Just y  =>
+          if ival == y
+            then tryGetReq e
+            else res
+    doFind res _ = res
 
 affect : XMLDoc -> XMLNode -> Extract Affect
 affect doc (Node e@(Element _ _ _)) = do
-  c <- getNamedAttr e "cvalue" "affect"
-  l <- getNamedAttr e "linksTo" "affect"
+  c <- getNamedAttr e "cValue" "//affect"
+  l <- getNamedAttr e "id" "//affect"
   rs <- getNodes doc "/pattern/problem/requirements/*"
   (_ ** r)  <- getReqByID l rs
   let d = case getEddaBlock e "affect" of
@@ -120,10 +127,10 @@ affect _ _ = Left $ GeneralError "error"
 
 trait : XMLDoc -> TTy -> XMLNode -> Extract (Sigma TTy Trait)
 trait doc ty (Node e@(Element _ _ _)) = do
-  n   <- getEddaString e "name"
-  d   <- getEddaBlock  e "description"
-  s   <- getNamedAttr  e "svalue" (cast ty)
-  as  <- getNodes      e "affects/affect"
+  n   <- getEddaString e "//name"
+  d   <- getEddaBlock  e "//description"
+  s   <- getNamedAttr  e "sValue" (with List concat ["//", cast ty ])
+  as  <- getNodes      e "//affects/affect"
   as' <- mapEither (\x => affect doc x) as
   pure $ (ty ** MkTrait ty n d (cast s) as')
 trait _ _ _ = Left $ GeneralError "error"
@@ -132,12 +139,12 @@ trait _ _ _ = Left $ GeneralError "error"
 
 property : XMLDoc -> XMLNode -> Extract Property
 property doc (Node e@(Element _ _ _)) = do
-  n  <- getEddaString e "property/name"
-  d  <- getEddaBlock  e "property/description"
+  n  <- getEddaString e "/property/name"
+  d  <- getEddaBlock  e "/property/description"
 
-  as <- getNodes e "property/traits/advantage"
-  ds <- getNodes e "property/traits/disadvantage"
-  gs <- getNodes e "property/traits/general"
+  as <- getNodes e "/property/traits/advantage"
+  ds <- getNodes e "/property/traits/disadvantage"
+  gs <- getNodes e "/property/traits/general"
 
   as' <- mapEither (\x => trait doc ADV x) as
   ds' <- mapEither (\x => trait doc DIS x) ds
@@ -158,9 +165,9 @@ properties doc = do
 
 model : MTy -> XMLNode -> Extract (Sigma MTy Model)
 model ty (Node e@(Element _ _ _)) = do
-  n <- getEddaString e "name"
-  d <- getEddaBlock  e "description"
-  m <- getCDataNode  e "model"
+  n <- getEddaString e "//name"
+  d <- getEddaBlock  e "//description"
+  m <- getCDataNode  e "//model"
 
   pure $ (ty ** MkModel n ty d m)
 model _ _ = Left $ GeneralError "error"
@@ -219,9 +226,9 @@ getMaybeDesc n = do
 
 relation : XMLNode -> Extract (Sigma LTy Relation)
 relation (Node e@(Element _ _ _)) = do
+    ty <- extractTy e
     f <- getNamedAttr e "patternID" ""
     let d = getMaybeDesc e
-    ty <- extractTy e
     pure $ (ty ** MkRelation ty f d)
   where
     getTy : XMLElem -> Maybe LTy
@@ -255,6 +262,7 @@ document doc = do
   p <- problem  doc
   s <- solution doc
   ss <- studies doc
-  pure $ MkPDoc n d m c p s e ss DList.Nil -- @TODO
+  rs <- relations doc
+  pure $ MkPDoc n d m c p s e ss (getProof rs)
 
 -- --------------------------------------------------------------------- [ EOF ]

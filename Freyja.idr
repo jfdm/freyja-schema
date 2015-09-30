@@ -30,6 +30,16 @@ instance Show RTy where
   show PERF = "PERF"
   show SUPP = "SUPP"
 
+readRTy : String -> Maybe RTy
+readRTy s =
+  case s of
+    "functional"     => Just FUNC
+    "usability"      => Just USAB
+    "reliability"    => Just RELI
+    "performance"    => Just PERF
+    "supportability" => Just SUPP
+    otherwise        => Nothing
+
 data TTy = ADV  | DIS | GEN
 
 instance Show TTy where
@@ -42,6 +52,14 @@ instance Cast TTy String where
   cast DIS = "disadvantage"
   cast GEN = "general"
 
+readTTy : String -> Maybe TTy
+readTTy s =
+  case s of
+    "advantage"    => Just ADV
+    "disadvantage" => Just DIS
+    "general"      => Just GEN
+    otherwise      => Nothing
+
 data MTy = STRUCT | DYN
 
 instance Show MTy where
@@ -50,7 +68,14 @@ instance Show MTy where
 
 instance Cast MTy String where
   cast STRUCT = "structure"
-  cast DYN    = "dynamics"
+  cast DYN    = "dynamic"
+
+readMTy : String -> Maybe MTy
+readMTy s =
+  case s of
+    "structure" => Just STRUCT
+    "dynamic"   => Just DYN
+    otherwise   => Nothing
 
 data LTy = SPECIAL | IMPL | USES | LINK
 
