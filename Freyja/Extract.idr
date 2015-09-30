@@ -227,7 +227,7 @@ getMaybeDesc n = do
 relation : XMLNode -> Extract (Sigma LTy Relation)
 relation (Node e@(Element _ _ _)) = do
     ty <- extractTy e
-    f <- getNamedAttr e "patternID" ""
+    f <- getNamedAttr e "patternID" (with List concat ["//", cast ty ])
     let d = getMaybeDesc e
     pure $ (ty ** MkRelation ty f d)
   where
