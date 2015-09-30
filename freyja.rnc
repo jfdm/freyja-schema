@@ -10,7 +10,7 @@ pattern = element pattern {
    solution,
    element evidence { score, text },
    studies,
-   relations
+   relations?
 }
 
 metadata = element mdata {
@@ -66,20 +66,19 @@ traits = element traits {
    (advantage | disadvantage | general)+
 }
 
-advantage    = element advantage    { score, eValue, title, description, affects }
-disadvantage = element disadvantage { score, eValue, title, description, affects }
-general      = element general      { score, eValue, title, description, affects }
+advantage    = element advantage    { score, sValue, title, description, affects }
+disadvantage = element disadvantage { score, sValue, title, description, affects }
+general      = element general      { score, sValue, title, description, affects }
 
 affects = element affects {
    element affect {
       cValue,
       attribute forceID { text },
-      text
+      text?
    }+
 }
 
-
-model = element model { modelTy, text }
+model = element model { text }
 
 studies = element studies {
    score,
@@ -91,17 +90,20 @@ studies = element studies {
 
 relations = element relations {
    score,
-   element link {
-      relationship,
-      attribute patternID { text },
-      text
-   }*
+   (specialises | requires | linked | implements )+
 }
+
+specialises = element specialises { patternID, text }
+requires    = element requires    { patternID, text }
+linked      = element linked      { patternID, text }
+implements  = element implements  { patternID, text }
+
 
 title       = element title { text }
 description = element desc { text }
 identity    = attribute id { text }
 
+patternID = attribute patternID { text }
 
 score = attribute score {
    "A"
@@ -127,18 +129,4 @@ cValue = attribute cValue {
  | "SOMENEG"
  | "HURTS"
  | "BREAKS"
-}
-
-relationship = attribute relationship {
-   "specialises"
- | "implements"
- | "uses"
- | "linkedTo"
-}
-
-modelTy = attribute modelTy {
-   "class"
- | "component"
- | "sequence"
- | "deployment"
 }

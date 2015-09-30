@@ -1,3 +1,8 @@
+-- --------------------------------------------------------------- [ Error.idr ]
+-- Module    : Error.idr
+-- Copyright : (c) Jan de Muijnck-Hughes
+-- License   : see LICENSE
+-- --------------------------------------------------------------------- [ EOH ]
 module Freyja.Error
 
 import XML.XPath

@@ -14,7 +14,7 @@ import GRL.Lang.GLang
 
 import XML.DOM
 
-import Freyja.Types
+import Freyja
 
 -- -------------------------------------------------------------- [ Directives ]
 
@@ -22,26 +22,6 @@ import Freyja.Types
 %default partial
 
 -- ------------------------------------------------------------------- [ Utils ]
-
-{-
-mkPCNode : String -> String -> Document ELEMENT
-mkPCNode p c = mkNode p <++> (c <+=> "TO BE DETERMIND")
-
-mkEmptyNode : String -> Document ELEMENT
-mkEmptyNode s = (s <+=> "TO BE DETERMIND")
-
-addScore : Document ELEMENT -> Document ELEMENT
-addScore = setAttribute "score" "TO BE DETERMINED"
-
-mkDescNode : Maybe String -> Document ELEMENT
-mkDescNode Nothing  = "description" <+=> "TO BE DETERMINED"
-mkDescNode (Just d) = "description" <+=> d
-
-mkNDNode : String -> String -> Maybe String -> Document ELEMENT
-mkNDNode n t d = (addScore $ mkNode n)
-            <++> (addScore $ mkDescNode d)
-            <++> (addScore $ "name" <+=> t)
--}
 
 mkNameDescNode : String
               -> EddaString
@@ -59,7 +39,7 @@ convertMany : String
 convertMany p c f ns = foldl doFold (mkNode p) ns
   where
     doFold : XMLElem -> a -> XMLElem
-    doFold p t = p <++> (c <+=> f t)
+    doFold p t = p <++> (mkNode c <=> (f t))
 
 convertEList : String -> String -> List EddaString -> XMLElem
 convertEList o i cs = convertMany o i inlines cs
@@ -78,6 +58,8 @@ convertMData mdata = setAttribute "id" (ident mdata) $
   <++> ("modified"  <+=> (modified mdata))
   <++> ("modified"  <+=> (created mdata))
 
+-- ----------------------------------------------------------------- [ Studies ]
+
 convertStudies : List Study -> Document ELEMENT
 convertStudies = foldl (mkStudy) (mkNode "studies")
   where
@@ -87,6 +69,8 @@ convertStudies = foldl (mkStudy) (mkNode "studies")
       <++> ("name"   <+=> inlines n)
       <++> ("before" <+=> concatMap block b)
       <++> ("after"  <+=> concatMap block a))
+
+-- ------------------------------------------------------------------ [ Models ]
 
 convertModel : Model ty -> XMLElem
 convertModel (MkModel n ty d m) =
@@ -107,14 +91,22 @@ convertModels = DList.foldl (doConvert) (mkNode "models")
     doConvert : XMLElem -> Model ty -> XMLElem
     doConvert p m = p <++> (convertModel m)
 
+-- ----------------------------------------------------------------- [ Context ]
+
 convertContext : Context -> XMLElem
 convertContext (MkContext n d) = mkNameDescNode "context" n d
--- @TODO
--- mkRels : Document ELEMENT
--- mkRels = addScore $ mkNode "relations"
---     <++> (setAttribute "patternID" "TO BE DETERMINED" $
---             setAttribute "relationship" "specialises | implements | uses | linkedTo" (mkNode "link"))
 
+-- --------------------------------------------------------------- [ Relations ]
+
+convertRelations : DList.DList LTy Relation rs -> XMLElem
+convertRelations = DList.foldl doConvert (mkNode "relations")
+  where
+    doConvert : XMLElem -> Relation ty -> XMLElem
+    doConvert doc (MkRelation ty i Nothing) = doc <++>
+        (setAttribute "patternID" i (mkNode (cast ty)))
+    doConvert doc (MkRelation ty i (Just d)) = doc <++>
+        (setAttribute "patternID" i (mkNode (cast ty)))
+          <=> (concatMap block d)
 
 -- --------------------------------------------------------------------- [ XML ]
 
@@ -186,7 +178,7 @@ convertPattern p = do
     pnode <- convertProblem (problem p)
     snode <- convertSolution (solution p)
     pure $ mkNode "pattern"
-        -- <++> mkRels
+       <++> (convertRelations (relations p))
        <++> (convertStudies (studies p))
        <++> ("evidence" <+=> concatMap block (evidence p))
        <++> snode

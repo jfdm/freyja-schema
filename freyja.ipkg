@@ -6,11 +6,10 @@ pkgs = xml
      , edda
      , effects
 
-modules = Freyja.Utils
+modules = Freyja
+        , Freyja.Utils
         , Freyja.Error
-        , Freyja.Types
         , Freyja.Fetch
         , Freyja.Extract
         , Freyja.Convert.Edda
         , Freyja.Convert.XML
-        , Freyja

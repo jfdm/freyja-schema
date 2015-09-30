@@ -12,7 +12,7 @@ import XML.DOM
 import XML.XPath
 import XML.XPath.Query
 
-import Freyja.Types
+import Freyja
 import Freyja.Error
 import Freyja.Utils
 

@@ -1,3 +1,8 @@
+-- ------------------------------------------------------------- [ Extract.idr ]
+-- Module    : Extract.idr
+-- Copyright : (c) Jan de Muijnck-Hughes
+-- License   : see LICENSE
+-- --------------------------------------------------------------------- [ EOH ]
 module Freyja.Extract
 
 import Data.Sigma.DList
@@ -10,8 +15,10 @@ import XML.DOM
 import XML.Reader
 import XML.XPath
 
-import Freyja.Types
-import Freyja.Error
+import Freyja
+
+import public Freyja.Error
+
 import Freyja.Fetch
 import Freyja.Utils
 
@@ -32,7 +39,7 @@ metadata doc = do
 
 -- ------------------------------------------------------------ [ Requirements ]
 
-requirement : (ty : RTy) -> XMLNode -> Extract (ty' ** Requirement ty')
+requirement : (ty : RTy) -> XMLNode -> Extract (Sigma RTy Requirement)
 requirement ty (Node e@(Element _ _ _)) = do
   n <- getEddaString e "name"
   d <- getEddaBlock  e "description"
@@ -57,6 +64,8 @@ requirements doc = do
 
   pure $ DList.fromLDP res
 
+-- ----------------------------------------------------------------- [ Problem ]
+
 problem : XMLDoc -> Extract Problem
 problem doc = do
   rs <- requirements doc
@@ -64,13 +73,15 @@ problem doc = do
   d <- getEddaBlock  doc "/pattern/problem/description"
   pure $ MkProblem n d (getProof rs)
 
+-- ----------------------------------------------------------------- [ Context ]
+
 context : XMLDoc -> Extract Context
 context doc = do
   n <- getEddaString doc "/pattern/context/name"
   d <- getEddaBlock  doc "/pattern/context/description"
   pure $ MkContext n d
 
--- ---------------------------------------------------------------- [ Solution ]
+-- ----------------------------------------------------------------- [ Affects ]
 
 getReqByID : String -> List XMLNode -> Extract (Sigma RTy Requirement)
 getReqByID _    Nil     = Left $ GeneralError "Requirement not found."
@@ -95,8 +106,8 @@ getReqByID ival (Node _::xs) = getReqByID ival xs
 
 affect : XMLDoc -> XMLNode -> Extract Affect
 affect doc (Node e@(Element _ _ _)) = do
-  c <- getNamedAttr e "cvalue" ""
-  l <- getNamedAttr e "linksTo" ""
+  c <- getNamedAttr e "cvalue" "affect"
+  l <- getNamedAttr e "linksTo" "affect"
   rs <- getNodes doc "/pattern/problem/requirements/*"
   (_ ** r)  <- getReqByID l rs
   let d = case getEddaBlock e "affect" of
@@ -105,17 +116,19 @@ affect doc (Node e@(Element _ _ _)) = do
   pure $ MkAffect (cast c) r d
 affect _ _ = Left $ GeneralError "error"
 
+-- ------------------------------------------------------------------ [ Traits ]
 
 trait : XMLDoc -> TTy -> XMLNode -> Extract (Sigma TTy Trait)
 trait doc ty (Node e@(Element _ _ _)) = do
   n   <- getEddaString e "name"
   d   <- getEddaBlock  e "description"
-  s   <- getNamedAttr  e "svalue" ""
+  s   <- getNamedAttr  e "svalue" (cast ty)
   as  <- getNodes      e "affects/affect"
   as' <- mapEither (\x => affect doc x) as
   pure $ (ty ** MkTrait ty n d (cast s) as')
 trait _ _ _ = Left $ GeneralError "error"
 
+-- ---------------------------------------------------------------- [ Property ]
 
 property : XMLDoc -> XMLNode -> Extract Property
 property doc (Node e@(Element _ _ _)) = do
@@ -141,6 +154,7 @@ properties doc = do
   ps' <- mapEither (\p => property doc p) ps
   pure ps'
 
+-- ------------------------------------------------------------------ [ Models ]
 
 model : MTy -> XMLNode -> Extract (Sigma MTy Model)
 model ty (Node e@(Element _ _ _)) = do
@@ -164,6 +178,7 @@ models doc = do
 
   pure $ DList.fromLDP res
 
+-- ---------------------------------------------------------------- [ Solution ]
 
 solution : XMLDoc -> Extract Solution
 solution doc = do
@@ -175,6 +190,7 @@ solution doc = do
 
   pure $ MkSolution n d (getProof ms) ps
 
+-- ----------------------------------------------------------------- [ Studies ]
 
 study : XMLNode -> Extract Study
 study (Node e@(Element _ _ _)) = do
@@ -191,6 +207,43 @@ studies doc = do
   ss' <- mapEither study ss
   pure $ ss'
 
+
+-- --------------------------------------------------------------- [ Relations ]
+
+getMaybeDesc : XMLElem -> Maybe EddaBody
+getMaybeDesc n = do
+    naam <- getNodeName n
+    case getEddaBlock n naam of
+        Left  err => Nothing
+        Right res => Just res
+
+relation : XMLNode -> Extract (Sigma LTy Relation)
+relation (Node e@(Element _ _ _)) = do
+    f <- getNamedAttr e "patternID" ""
+    let d = getMaybeDesc e
+    ty <- extractTy e
+    pure $ (ty ** MkRelation ty f d)
+  where
+    getTy : XMLElem -> Maybe LTy
+    getTy x = do
+        naam <- getNodeName x
+        ty   <- readLTy naam
+        pure ty
+    extractTy : XMLElem -> Extract LTy
+    extractTy x =
+      case getTy x of
+        Nothing => Left $ GeneralError "Error"
+        Just n  => pure $ n
+
+relation _ = Left $ GeneralError "Error"
+
+relations : XMLDoc -> Extract (ls ** DList LTy Relation ls)
+relations doc = do
+    ls <- getNodes doc "/pattern/relations/*"
+    ls' <- mapEither relation ls
+    pure $ DList.fromLDP ls'
+
+-- ---------------------------------------------------------------- [ Document ]
 
 document : XMLDoc -> Extract PatternDoc
 document doc = do

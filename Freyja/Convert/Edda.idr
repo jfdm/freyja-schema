@@ -11,7 +11,7 @@ import Edda
 import Edda.Refine
 import Edda.Writer.Org
 
-import Freyja.Types
+import Freyja
 
 -- ------------------------------------------------------------------- [ Utils ]
 
@@ -30,12 +30,15 @@ subsubsection l t = sectionTemplate 2 l t
 subsubsubsection : Maybe String -> EddaString -> Edda PRIME BLOCK
 subsubsubsection l t = sectionTemplate 3 l t
 
+-- ----------------------------------------------------------------- [ Affects ]
 
 convertAffect : Affect -> EddaBody
 convertAffect (MkAffect c r d) =
       [subsubsubsection Nothing
         ((Emph [Text $ show c]) :: Space :: name r ) ]
    ++ fromMaybe Nil d
+
+-- ------------------------------------------------------------------ [ Traits ]
 
 convertTrait : Trait ty -> EddaBody
 convertTrait (MkTrait ty n d s as) =
@@ -48,6 +51,8 @@ convertTrait (MkTrait ty n d s as) =
 convertTraits : DList TTy Trait ts -> EddaBody
 convertTraits Nil     = Nil
 convertTraits (m::ms) = convertTrait m ++ convertTraits ms
+
+-- -------------------------------------------------------------- [ Properties ]
 
 convertProperty : Property -> EddaBody
 convertProperty (MkProperty n d ts) =
@@ -90,9 +95,12 @@ convertReq (MkReq ty n d) =
         (Text (show ty) :: Colon :: Space :: n)]
     ++ d
 
+
 convertReqs : DList RTy Requirement ms -> EddaBody
 convertReqs Nil     = Nil
 convertReqs (m::ms) = convertReq m ++ convertReqs ms
+
+-- ----------------------------------------------------------------- [ Problem ]
 
 convertProblem : Problem -> EddaBody
 convertProblem (MkProblem n d rs) =
@@ -132,8 +140,12 @@ convertMetadata mdata =
           , MkPair [Text "ID"]       [Text (ident mdata)]]
        ]
 
+-- ---------------------------------------------------------------- [ Evidence ]
+
 convertEvidence : EddaBody -> EddaBody
 convertEvidence d = [section Nothing [Text "Evidence"]] ++ d
+
+-- ----------------------------------------------------------------- [ Studies ]
 
 convertStudies : List Study -> EddaBody
 convertStudies ss = [section Nothing [Text "Case Studies"]]
@@ -146,6 +158,8 @@ convertStudies ss = [section Nothing [Text "Case Studies"]]
      ++ b
      ++ [subsection Nothing [Text "Study"]]
      ++ a
+
+-- --------------------------------------------------------------- [ Relations ]
 
 convertRelations : DList LTy Relation ls -> EddaBody
 convertRelations _ = Nil -- @TODO

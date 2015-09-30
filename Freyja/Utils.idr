@@ -8,8 +8,8 @@ module Freyja.Utils
 mapEither : (a -> Either e b) -> List a -> Either e (List b)
 mapEither f Nil     = pure Nil
 mapEither f (x::xs) = do
-  x' <- f x
+  x'  <- f x
   xs' <- mapEither f xs
-  pure $ x'::xs'
+  pure (x' :: xs')
 
 -- --------------------------------------------------------------------- [ EOF ]
