@@ -2,8 +2,8 @@ start = pattern
 
 pattern = element pattern {
    identity,
-   element name { score, text },
-   element abstract { score, text },
+   name,
+   element summary { score, text },
    metadata,
    element context { score, text },
    problem,
@@ -28,11 +28,11 @@ requirements = element requirements {
    (func | usab | reli | perf | supp )+
 }
 
-func = element functional     { identity, title, description }
-usab = element usability      { identity, title, description }
-reli = element reliability    { identity, title, description }
-perf = element performance    { identity, title, description }
-supp = element supportability { identity, title, description }
+func = element functional     { identity, name, description }
+usab = element usability      { identity, name, description }
+reli = element reliability    { identity, name, description }
+perf = element performance    { identity, name, description }
+supp = element supportability { identity, name, description }
 
 
 problem = element problem {
@@ -44,13 +44,10 @@ problem = element problem {
 
 
 solution = element solution {
-   element title { text },
+   name,
    description,
    models,
-   element properties {
-      score,
-      property+
-   }
+   element properties { score, property+ }
 }
 
 models = element models {
@@ -58,24 +55,20 @@ models = element models {
    (structure | dynamics)+
 }
 
-structure = element structure { score, title, description, model }
-dynamics  = element dynamics  { score, title, description, model }
-property  = element property  { score, title, description, traits }
+structure = element structure { score, name, description, model }
+dynamics  = element dynamics  { score, name, description, model }
+property  = element property  { score, name, description, traits }
 
 traits = element traits {
    (advantage | disadvantage | general)+
 }
 
-advantage    = element advantage    { score, sValue, title, description, affects }
-disadvantage = element disadvantage { score, sValue, title, description, affects }
-general      = element general      { score, sValue, title, description, affects }
+advantage    = element advantage    { score, sValue, name, description, affects }
+disadvantage = element disadvantage { score, sValue, name, description, affects }
+general      = element general      { score, sValue, name, description, affects }
 
 affects = element affects {
-   element affect {
-      cValue,
-      attribute forceID { text },
-      text?
-   }+
+   element affect { cValue, identity, text }+
 }
 
 model = element model { text }
@@ -99,8 +92,9 @@ linked      = element linked      { patternID, text }
 implements  = element implements  { patternID, text }
 
 
-title       = element title { text }
-description = element desc { text }
+name        = element name { text }
+description = element description { text }
+
 identity    = attribute id { text }
 
 patternID = attribute patternID { text }
