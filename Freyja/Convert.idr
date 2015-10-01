@@ -56,4 +56,13 @@ convTo ORG   p = org $ toEdda p
 convTo LATEX p = latex $ toEdda p
 convTo CMARK p = markdown $ toEdda p
 
+
+covering
+convShow : FreyjaOutFormat -> PatternDoc -> Maybe String
+convShow XML   p = Just (show @{xml} (convTo XML p))
+convShow ORG   p = Just (show (convTo ORG p))
+convShow CMARK p = Just (show (convTo CMARK p))
+convShow LATEX p = Just (show (convTo LATEX p))
+convShow _     _ = Nothing
+
 -- --------------------------------------------------------------------- [ EOF ]
