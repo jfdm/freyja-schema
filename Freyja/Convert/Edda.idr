@@ -183,8 +183,9 @@ convertPattern p = MkEdda as (intersperse (Empty PRIME) body)
         ++ (convertMetadata $ mdata p)
 
 
-public
-toEdda : PatternDoc -> Edda PRIME MODEL
-toEdda pdoc = (convertPattern pdoc)
+namespace Freyja
+  public
+  toEdda : PatternDoc -> Edda PRIME MODEL
+  toEdda pdoc = (convertPattern pdoc)
 
 -- --------------------------------------------------------------------- [ EOF ]

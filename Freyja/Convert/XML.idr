@@ -189,13 +189,14 @@ convertPattern p = do
        <++> ("description" <+=> concatMap block (summary p))
        <++> ("name" <+=> inlines (name p))
 
-public
-toXML : PatternDoc -> XMLDoc
-toXML p =  mkDocument root
-  where
-    partial
-    root : XMLElem
-    root = runPureInit [(Z,Dict.empty)] (convertPattern p)
+namespace Freyja
+  public
+  toXML : PatternDoc -> XMLDoc
+  toXML p =  mkDocument root
+    where
+      partial
+      root : XMLElem
+      root = runPureInit [(Z,Dict.empty)] (convertPattern p)
 
 
 -- --------------------------------------------------------------------- [ EOF ]
