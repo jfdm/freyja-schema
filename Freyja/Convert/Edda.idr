@@ -13,6 +13,8 @@ import Edda.Writer.Org
 
 import Freyja
 
+%access public
+
 -- ------------------------------------------------------------------- [ Utils ]
 
 sectionTemplate : Nat -> Maybe String -> EddaString -> Edda PRIME BLOCK
@@ -184,7 +186,6 @@ convertPattern p = MkEdda as (intersperse (Empty PRIME) body)
 
 
 namespace Freyja
-  public
   toEdda : PatternDoc -> Edda PRIME MODEL
   toEdda pdoc = (convertPattern pdoc)
 

@@ -14,3 +14,4 @@ modules = Freyja.Common
         , Freyja.Extract
         , Freyja.Convert.Edda
         , Freyja.Convert.XML
+        , Freyja.Convert
