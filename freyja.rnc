@@ -1,67 +1,96 @@
+# --------------------------------------------------------------- [ freyja.rnc ]
+# Module    : freyja.rnc
+# Copyright : (c) Jan de Muijnck-Hughes
+# License   : see LICENSE
+# ---------------------------------------------------------------------- [ EOH ]
+
 start = pattern
 
+# -------------------------------------------------------------- [ The pattern ]
+
 pattern = element pattern {
-   identity,
-   name,
-   element summary { score, text },
-   metadata,
-   element context { score, name, description },
-   problem,
-   solution,
-   element evidence { score, text },
-   studies,
-   relations?
+   identity
+ , name
+ , summary
+ , metadata
+ , context
+ , problem
+ , solution
+ , evidence
+ , studies
+ , relations? # Optional as some patterns are standalone
 }
+
+# ------------------------------------------------------------------ [ Summary ]
+
+summary = element summary {
+   score
+ , text
+}
+
+# ----------------------------------------------------------------- [ Metadata ]
 
 metadata = element metadata {
-   element aliases { element alias { text }+ },
-   element tags    { element tag { text }+ },
-   element created   { text },
-   element modified  { text },
-   element evaluated { text },
-   element authors  { element author  { text }+ },
-   element auditors { element auditor { text }+ }
+   element aliases { element alias { text }+ }
+ , element tags    { element tag   { text }+ }
+ , element created   { xsd:date }
+ , element modified  { xsd:date }
+ , element evaluated { xsd:date }
+ , element authors  { element author  { text }+ }
+ , element auditors { element auditor { text }+ }
 }
 
-requirements = element requirements {
-   score,
-   (func | usab | reli | perf | supp )+
+# ------------------------------------------------------------------ [ Domains ]
+
+context = element context {
+   score
+ , name
+ , description
 }
 
-func = element functional     { identity, name, description }
-usab = element usability      { identity, name, description }
-reli = element reliability    { identity, name, description }
-perf = element performance    { identity, name, description }
-supp = element supportability { identity, name, description }
-
+# ----------------------------------------------------------------- [ Problems ]
 
 problem = element problem {
-   score,
-   name,
-   description,
-   requirements
+   score
+ , name
+ , description
+ , element requirements { (f | u | r | p | s )+ }
 }
 
+# ------------------------------------------------------------- [ Requirements ]
+
+f = element functional     { identity, score, name, description }
+u = element usability      { identity, score, name, description }
+r = element reliability    { identity, score, name, description }
+p = element performance    { identity, score, name, description }
+s = element supportability { identity, score, name, description }
+
+# ---------------------------------------------------------------- [ Solutions ]
 
 solution = element solution {
-   name,
-   description,
-   models,
-   element properties { score, property+ }
+   name
+ , description
+ , element models { ( structure | dynamics )+ }
+ , element properties { property+ }
 }
 
-models = element models {
-   score,
-   (structure | dynamics)+
-}
+# ------------------------------------------------------------------- [ Models ]
 
 structure = element structure { score, name, description, model }
 dynamics  = element dynamic   { score, name, description, model }
-property  = element property  { score, name, description, traits }
 
-traits = element traits {
-   (advantage | disadvantage | general)+
+model = element model { text }
+
+# ----------------------------------------------------------------- [ Property ]
+
+property  = element property  {
+   score
+ , name
+ , description
+ , element traits { (advantage | disadvantage | general)+ }
 }
+
+# ------------------------------------------------------------------- [ Traits ]
 
 advantage    = element advantage    { score, sValue, name, description, affects }
 disadvantage = element disadvantage { score, sValue, name, description, affects }
@@ -71,19 +100,24 @@ affects = element affects {
    element affect { cValue, identity, text }+
 }
 
-model = element model { text }
+# ------------------------------------------------------------- [ Case Studies ]
 
 studies = element studies {
-   score,
    element study {
-      name,
-      element before { text },
-      element after  { text }
+      score
+    , name
+    , element before { text }
+    , element after  { text }
    }+
 }
 
+# ----------------------------------------------------------------- [ Evidence ]
+
+evidence = element evidence { score, text }
+
+# ---------------------------------------------------------------- [ Relations ]
+
 relations = element relations {
-   score,
    (specialises | requires | linked | implements )+
 }
 
@@ -92,14 +126,9 @@ requires    = element requires    { patternID, text }
 linked      = element linked      { patternID, text }
 implements  = element implements  { patternID, text }
 
+# --------------------------------------------------------------- [ Attributes ]
 
-name        = element name { text }
-description = element description { text }
-
-identity    = attribute id { text }
-
-patternID = attribute patternID { text }
-
+# Possible scores for evaluation.
 score = attribute score {
    "A"
  | "B"
@@ -108,20 +137,31 @@ score = attribute score {
  | "E"
 }
 
+# Satisfaction values
 sValue = attribute sValue {
-   "SATISFIED"
- | "WEAKSATIS"
- | "WEAKDEN"
- | "DENIED"
- | "UNKNOWN"
+   "Satisfied"
+ | "WeakSatis"
+ | "WeakDen"
+ | "Denied"
+ | "UNknown"
 }
 
+# Contribution values
 cValue = attribute cValue {
-   "MAKES"
- | "HELPS"
- | "SOMEPOS"
- | "ZERO"
- | "SOMENEG"
- | "HURTS"
- | "BREAKS"
+   "Makes"
+ | "Helps"
+ | "SomePos"
+ | "Zero"
+ | "SomeNeg"
+ | "Hurts"
+ | "Breaks"
 }
+
+# --------------------------------------------------------------------- [ Misc ]
+
+name        = element name { text }
+description = element description { text }
+identity    = attribute id { text }
+patternID   = attribute patternID { text }
+
+# ---------------------------------------------------------------------- [ EOF ]

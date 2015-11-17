@@ -43,8 +43,8 @@ record Requirement (x : RTy) where
   desc : EddaBody
 
 instance Show (Requirement ty) where
-  show (MkReq ty n d) = unwords
-    [ "MkReq", show ty, show n, show d]
+  show (MkReq typ n d) = unwords
+    [ "MkReq", show typ, show n, show d]
 
 -- ---------------------------------------------------------------- [ Problems ]
 
@@ -69,8 +69,8 @@ record Model (x : MTy) where
   model : String
 
 instance Show (Model ty) where
-  show (MkModel n ty d m) = unwords
-    ["MkModel", show n, show ty, show d, show m]
+  show (MkModel n typ d m) = unwords
+    ["MkModel", show n, show typ, show d, show m]
 
 -- ----------------------------------------------------------------- [ Affects ]
 
@@ -95,8 +95,8 @@ record Trait (x : TTy) where
   affects : List Affect
 
 instance Show (Trait ty) where
-  show (MkTrait ty n d s as) = unwords
-    ["MkTrait", show ty, show n, show d, show s, show as]
+  show (MkTrait typ n d s as) = unwords
+    ["MkTrait", show typ, show n, show d, show s, show as]
 
 -- ---------------------------------------------------------------- [ Property ]
 
@@ -155,8 +155,8 @@ record Relation (x : LTy) where
   desc  : Maybe EddaBody
 
 instance Show (Relation ty) where
-  show (MkRelation ty i d) = unwords
-    ["MkRelation", show ty, show i, show d]
+  show (MkRelation typ i d) = unwords
+    ["MkRelation", show typ, show i, show d]
 
 -- ------------------------------------------------------------- [ Pattern Doc ]
 
