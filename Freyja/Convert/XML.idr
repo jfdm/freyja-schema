@@ -57,7 +57,7 @@ convertMData mdata = setAttribute "id" (ident mdata) $
   <++> (convertEList "auditors" "auditor" (auditors mdata))
   <++> ("evaluated" <+=> (evaluated mdata))
   <++> ("modified"  <+=> (modified mdata))
-  <++> ("modified"  <+=> (created mdata))
+  <++> ("created"  <+=> (created mdata))
 
 -- ----------------------------------------------------------------- [ Studies ]
 

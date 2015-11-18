@@ -255,7 +255,7 @@ relations doc = do
 document : XMLDoc -> Extract PatternDoc
 document doc = do
   n <- getEddaString doc "/pattern/name"
-  d <- getEddaBlock  doc "/pattern/summary"
+  d <- getEddaBlock  doc "/pattern/description"
   e <- getEddaBlock  doc "/pattern/evidence"
   m <- metadata doc
   c <- context  doc
