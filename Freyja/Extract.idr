@@ -113,7 +113,7 @@ getReqByID ival ns =
 
 affect : XMLDoc -> XMLNode -> Extract Affect
 affect doc (Node e@(Element _ _ _)) = do
-  c <- getNamedAttr e "cValue" "//affect"
+  c <- getNamedAttr e "cvalue" "//affect"
   l <- getNamedAttr e "id" "//affect"
   rs <- getNodes doc "/pattern/problem/requirements/*"
   (_ ** r)  <- getReqByID l rs
@@ -129,7 +129,7 @@ trait : XMLDoc -> TTy -> XMLNode -> Extract (Sigma TTy Trait)
 trait doc ty (Node e@(Element _ _ _)) = do
   n   <- getEddaString e "//name"
   d   <- getEddaBlock  e "//description"
-  s   <- getNamedAttr  e "sValue" (with List concat ["//", cast ty ])
+  s   <- getNamedAttr  e "svalue" (with List concat ["//", cast ty ])
   as  <- getNodes      e "//affects/affect"
   as' <- mapEither (\x => affect doc x) as
   pure $ (ty ** MkTrait ty n d (cast s) as')
