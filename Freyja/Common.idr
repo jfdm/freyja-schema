@@ -34,9 +34,9 @@ readRTy s =
 data TTy = ADV  | DIS | GEN
 
 instance Show TTy where
-  show ADV = "ADV"
-  show DIS = "DIS"
-  show GEN = "GEN"
+  show ADV = "ADVANTAGE"
+  show DIS = "DISADVANTAGE"
+  show GEN = "GENERAL"
 
 instance Cast TTy String where
   cast ADV = "advantage"
