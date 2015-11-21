@@ -142,7 +142,7 @@ convertAffect (MkAffect c r d) = do
            Just xs => "affect" <+=> concatMap block xs
        let idval = cast {to=Int} $ fromMaybe 0 id
        pure $ (setAttribute "cvalue" (cast c)
-              (setAttribute "linksTo" (cast idval) e))
+              (setAttribute "id" (cast idval) e))
 
 convertTrait : Trait ty -> Eff (XMLElem) XEffs
 convertTrait (MkTrait ty n d s as) = do

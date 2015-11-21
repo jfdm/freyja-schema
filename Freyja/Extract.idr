@@ -112,12 +112,13 @@ getReqByID ival ns =
     doFind res _ = res
 
 affect : XMLDoc -> XMLNode -> Extract Affect
-affect doc (Node e@(Element _ _ _)) = do
+affect doc n@(Node e@(Element _ _ _)) = do
   c <- getNamedAttr e "cvalue" "//affect"
   l <- getNamedAttr e "id" "//affect"
   rs <- getNodes doc "/pattern/problem/requirements/*"
   (_ ** r)  <- getReqByID l rs
-  let d = case getEddaBlock e "affect" of
+
+  let d = case getEddaBlock e "//affect" of
             Left err  => Nothing
             Right res => Just res
   pure $ MkAffect (cast c) r d
