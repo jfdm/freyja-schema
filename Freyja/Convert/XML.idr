@@ -23,13 +23,13 @@ import Freyja
 
 -- ------------------------------------------------------------------- [ Utils ]
 
-mkNameDescNode : String
-              -> EddaString
-              -> EddaBody
-              -> XMLElem
-mkNameDescNode p n d = mkNode p
-    <++> ("name" <+=> inlines n)
+addNameDesc : EddaString
+           -> EddaBody
+           -> XMLElem
+           -> XMLElem
+addNameDesc n d e = e
     <++> ("description" <+=> concatMap block d)
+    <++> ("name" <+=> inlines n)
 
 convertMany : String
            -> String
@@ -65,11 +65,11 @@ convertStudies : List Study -> Document ELEMENT
 convertStudies = foldl (mkStudy) (mkNode "studies")
   where
     mkStudy : XMLElem -> Study -> XMLElem
-    mkStudy p (MkStudy n b a) = p <++> (
-        mkNode "study"
-      <++> ("name"   <+=> inlines n)
-      <++> ("before" <+=> concatMap block b)
-      <++> ("after"  <+=> concatMap block a))
+    mkStudy p (MkStudy n b a) =
+      p <++> (mkNode "study"
+             <++> ("after"  <+=> concatMap block a)
+             <++> ("before" <+=> concatMap block b)
+             <++> ("name"   <+=> inlines n))
 
 -- ------------------------------------------------------------------ [ Models ]
 
@@ -77,9 +77,9 @@ convertModel : Model ty -> XMLElem
 convertModel (MkModel n ty d m) =
          setAttribute "modelTy" "unknown" $
          mkNode (tname ty)
-    <++> ("name" <+=> inlines n)
-    <++> ("description" <+=> concatMap block d)
     <++> (mkNode "model" <++> CData m)
+    <++> ("description" <+=> concatMap block d)
+    <++> ("name" <+=> inlines n)
 
   where
     tname : MTy -> String
@@ -95,7 +95,7 @@ convertModels = DList.foldl (doConvert) (mkNode "models")
 -- ----------------------------------------------------------------- [ Context ]
 
 convertContext : Context -> XMLElem
-convertContext (MkContext n d) = mkNameDescNode "context" n d
+convertContext (MkContext n d) = addNameDesc n d (mkNode "context")
 
 -- --------------------------------------------------------------- [ Relations ]
 
@@ -116,22 +116,22 @@ XEffs = [STATE (Nat, Dict String Nat)]
 
 convertReq : Requirement ty -> Eff (XMLElem) XEffs
 convertReq (MkReq ty n d) = do
-    let r = mkNameDescNode (cast ty) n d
+    let r = mkNode (cast ty)
     (idGen,_) <- get
     let idVal = cast {to=Int} (S idGen)
     let e = setAttribute "id" (cast idVal) r
     update (\(idGen,ids) => ((S idGen), insert (inlines n) (S idGen) ids))
-    pure $ e
+    pure $ addNameDesc n d e
 
 convertProblem : Problem -> Eff (XMLElem) XEffs
 convertProblem (MkProblem n d rs) = do
-       let e = mkNameDescNode "problem" n d
+       let e = mkNode "problem"
        rsC <-  mapDListE (\r => convertReq r) rs
-       let rNodes = Foldable.foldl
-                       (\n,r => n <++> r)
+       let rNodes = Foldable.foldr
+                       (\r,n => n <++> r)
                        (mkNode "requirements")
                        rsC
-       pure $ e <++> rNodes
+       pure $ addNameDesc n d (e <++> rNodes)
 
 convertAffect : Affect -> Eff (XMLElem) XEffs
 convertAffect (MkAffect c r d) = do
@@ -146,33 +146,33 @@ convertAffect (MkAffect c r d) = do
 
 convertTrait : Trait ty -> Eff (XMLElem) XEffs
 convertTrait (MkTrait ty n d s as) = do
-       let e  = mkNameDescNode (toLower $ show ty) n d
+       let e  = mkNode (toLower $ show ty)
        let e' = setAttribute "svalue" (cast s) e
        -- <mess>
        asC <- mapE (\a => convertAffect a) as
-       let rNodes = foldl (\n,r => n <++> r) (mkNode "affects") asC
+       let rNodes = foldr (\r,n => n <++> r) (mkNode "affects") asC
        -- </mess>
-       pure $ e' <++> (rNodes)
+       pure $ addNameDesc n d $ (e' <++> (rNodes))
 
 convertProperty : Property -> Eff (XMLElem) XEffs
 convertProperty (MkProperty n d ts) = do
-       let e = mkNameDescNode "property" n d
+       let e = mkNode "property"
        -- <mess>
        tsC <- mapDListE (\t => convertTrait t) ts
-       let rNodes = foldl (\n,r => n <++> r) (mkNode "traits") tsC
+       let rNodes = foldr (\r,n => n <++> r) (mkNode "traits") tsC
        -- </mess>
-       pure $ e <++> rNodes
+       pure $ addNameDesc n d (e <++> rNodes)
 
 convertSolution : Solution -> Eff (XMLElem) XEffs
 convertSolution (MkSolution n d ms ps) = do
-       let e = mkNameDescNode "solution" n d
+       let e = mkNode "solution"
        -- <mess>
        psC <- mapE (\p => convertProperty p) ps
-       let rNodes = foldl (\n,r => n <++> r) (mkNode "properties") psC
+       let rNodes = foldr (\r,n => n <++> r) (mkNode "properties") psC
        -- </mess>
        let mNodes = convertModels ms
 
-       pure $ e <++> rNodes <++> mNodes
+       pure $ addNameDesc n d $ (e <++> rNodes <++> mNodes)
 
 convertPattern : PatternDoc -> Eff (XMLElem) XEffs
 convertPattern p = do
