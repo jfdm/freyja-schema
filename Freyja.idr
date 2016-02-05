@@ -6,7 +6,7 @@
 ||| Core Data Types.
 module Freyja
 
-import public Data.Sigma.DList
+import public Data.DList
 
 import public GRL.Lang.GLang
 
@@ -14,6 +14,7 @@ import public Edda
 
 import public Freyja.Common
 
+%access public export
 -- ----------------------------------------------------------- [ Element Types ]
 
 -- ---------------------------------------------------------------- [ MetaData ]
@@ -29,7 +30,7 @@ record Metadata where
   evaluated : String
   ident     : String
 
-instance Show Metadata where
+implementation Show Metadata where
   show (MkMData as bs cs ds e f g i) = unwords
     [ "MkMData", show as, show bs, show cs, show ds
     , show e, show f, show g, show i]
@@ -42,7 +43,7 @@ record Requirement (x : RTy) where
   name : EddaString
   desc : EddaBody
 
-instance Show (Requirement ty) where
+implementation Show (Requirement ty) where
   show (MkReq typ n d) = unwords
     [ "MkReq", show typ, show n, show d]
 
@@ -54,7 +55,7 @@ record Problem where
   desc : EddaBody
   reqs : DList RTy Requirement rs
 
-instance Show Problem where
+implementation Show Problem where
   show (MkProblem n d rs) = unwords
     ["MkProblem", show n, show d, showDList show rs]
 
@@ -68,7 +69,7 @@ record Model (x : MTy) where
   desc  : EddaBody
   model : String
 
-instance Show (Model ty) where
+implementation Show (Model ty) where
   show (MkModel n typ d m) = unwords
     ["MkModel", show n, show typ, show d, show m]
 
@@ -80,7 +81,7 @@ record Affect where
   req  : Requirement ty
   desc : Maybe (EddaBody)
 
-instance Show Affect where
+implementation Show Affect where
   show (MkAffect c r d) = unwords
     ["MkAffect", show c, show r, show d]
 
@@ -94,7 +95,7 @@ record Trait (x : TTy) where
   sval : SValue
   affects : List Affect
 
-instance Show (Trait ty) where
+implementation Show (Trait ty) where
   show (MkTrait typ n d s as) = unwords
     ["MkTrait", show typ, show n, show d, show s, show as]
 
@@ -106,7 +107,7 @@ record Property where
   desc   : EddaBody
   traits : DList TTy Trait ts
 
-instance Show (Property) where
+implementation Show (Property) where
   show (MkProperty n d ts) = unwords
     ["MkProperty", show n, show d, showDList show ts]
 
@@ -119,7 +120,7 @@ record Solution where
   models     : DList MTy Model ms
   properties : List Property
 
-instance Show Solution where
+implementation Show Solution where
   show (MkSolution n d ms ps) = unwords
     ["MkSolution", show n, show d, showDList show ms, show ps]
 
@@ -130,7 +131,7 @@ record Context where
   name : EddaString
   desc : EddaBody
 
-instance Show Context where
+implementation Show Context where
   show (MkContext n d) = unwords
     ["MkContext", show n, show d]
 
@@ -142,7 +143,7 @@ record Study where
   before : EddaBody
   after  : EddaBody
 
-instance Show Study where
+implementation Show Study where
   show (MkStudy n b a) = unwords
     ["MkStudy", show b, show b, show a]
 
@@ -154,7 +155,7 @@ record Relation (x : LTy) where
   ident : String
   desc  : Maybe EddaBody
 
-instance Show (Relation ty) where
+implementation Show (Relation ty) where
   show (MkRelation typ i d) = unwords
     ["MkRelation", show typ, show i, show d]
 
@@ -172,7 +173,7 @@ record PatternDoc where
   studies   : List Study
   relations : DList LTy Relation ls
 
-instance Show PatternDoc where
+implementation Show PatternDoc where
   show (MkPDoc n d m c p s e ss rs) = unwords
       [ "MkPDoc"
       , show n, show d, show m, show c

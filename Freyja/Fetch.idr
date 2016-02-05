@@ -16,6 +16,7 @@ import Freyja
 import Freyja.Error
 import Freyja.Utils
 
+%access export
 -- ----------------------------------------------------------------- [ Queries ]
 
 getNodes : (node : Document ty)

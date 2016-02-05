@@ -16,9 +16,11 @@ import Freyja
 import Freyja.Convert.XML
 import Freyja.Convert.Edda
 
+%access public export
+
 data FreyjaOutFormat = ORG | LATEX | CMARK | XML | EDDA
 
-instance Eq FreyjaOutFormat where
+implementation Eq FreyjaOutFormat where
   (==) LATEX   LATEX   = True
   (==) CMARK   CMARK   = True
   (==) ORG     ORG     = True
@@ -26,13 +28,14 @@ instance Eq FreyjaOutFormat where
   (==) EDDA    EDDA    = True
   (==) _       _       = False
 
-instance Show FreyjaOutFormat where
+implementation Show FreyjaOutFormat where
   show LATEX = "LaTeX"
   show CMARK = "CommonMark"
   show ORG   = "Org"
   show XML   = "XML"
   show EDDA  = "EDDA"
 
+export
 readOutFMT : String -> Maybe FreyjaOutFormat
 readOutFMT s =
   case toLower s of
@@ -42,6 +45,7 @@ readOutFMT s =
     "xml"      => Just XML
     otherwise  => Nothing
 
+export
 convTy : FreyjaOutFormat -> Type
 convTy LATEX   = String
 convTy CMARK   = String
@@ -49,6 +53,7 @@ convTy ORG     = String
 convTy XML     = XMLDoc
 convTy EDDA    = EddaDoc
 
+export
 convTo : (fmt : FreyjaOutFormat) -> PatternDoc-> (convTy fmt)
 convTo XML   p = toXML p
 convTo EDDA  p = toEdda p
@@ -58,6 +63,7 @@ convTo CMARK p = markdown $ toEdda p
 
 
 covering
+export
 convShow : FreyjaOutFormat -> PatternDoc -> Maybe String
 convShow XML   p = Just (show @{xml} (convTo XML p))
 convShow ORG   p = Just ((convTo ORG p))

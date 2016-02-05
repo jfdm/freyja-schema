@@ -1,11 +1,16 @@
+-- ----------------------------------------------------------------- [ XML.idr ]
+-- Module    : XML.idr
+-- Copyright : (c) Jan de Muijnck-Hughes
+-- License   : see LICENSE
+-- --------------------------------------------------------------------- [ EOH ]
 module Freyja.Convert.XML
 
 import Effects
 import Effect.State
 
 import Data.AVL.Dict
-import Data.Sigma.DList
-import Data.Sigma.DList.Eff
+import Data.DList
+import Data.DList.Eff
 
 import Edda
 import Edda.Writer.Org
@@ -190,7 +195,7 @@ convertPattern p = do
        <++> ("name" <+=> inlines (name p))
 
 namespace Freyja
-  public
+  export
   toXML : PatternDoc -> XMLDoc
   toXML p =  mkDocument root
     where

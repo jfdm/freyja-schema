@@ -5,6 +5,7 @@
 -- --------------------------------------------------------------------- [ EOH ]
 module Freyja.Utils
 
+export
 mapEither : (a -> Either e b) -> List a -> Either e (List b)
 mapEither f Nil     = pure Nil
 mapEither f (x::xs) = do

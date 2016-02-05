@@ -13,7 +13,7 @@ import Edda.Writer.Org
 
 import Freyja
 
-%access public
+%access private
 
 -- ------------------------------------------------------------------- [ Utils ]
 
@@ -167,7 +167,7 @@ convertRelations : DList LTy Relation ls -> EddaBody
 convertRelations _ = Nil -- @TODO
 
 -- ----------------------------------------------------------------- [ Pattern ]
-
+export
 convertPattern : PatternDoc -> Edda PRIME MODEL
 convertPattern p = MkEdda as (intersperse (Empty PRIME) body)
   where
@@ -186,6 +186,7 @@ convertPattern p = MkEdda as (intersperse (Empty PRIME) body)
 
 
 namespace Freyja
+  export
   toEdda : PatternDoc -> Edda PRIME MODEL
   toEdda pdoc = (convertPattern pdoc)
 

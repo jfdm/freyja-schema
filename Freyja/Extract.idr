@@ -5,7 +5,7 @@
 -- --------------------------------------------------------------------- [ EOH ]
 module Freyja.Extract
 
-import Data.Sigma.DList
+import Data.DList
 import GRL.Lang.GLang
 
 import Edda
@@ -24,6 +24,7 @@ import Freyja.Utils
 
 import Debug.Trace
 
+%access private
 -- ---------------------------------------------------------------- [ MetaData ]
 
 metadata : XMLDoc -> Extract Metadata
@@ -252,7 +253,7 @@ relations doc = do
     pure $ DList.fromLDP ls'
 
 -- ---------------------------------------------------------------- [ Document ]
-
+export
 document : XMLDoc -> Extract PatternDoc
 document doc = do
   n <- getEddaString doc "/pattern/name"

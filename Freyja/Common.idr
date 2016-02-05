@@ -5,16 +5,19 @@
 -- --------------------------------------------------------------------- [ EOH ]
 module Freya.Common
 
+%access export
+
+public export
 data RTy = FUNC | USAB | RELI | PERF | SUPP
 
-instance Cast RTy String where
+implementation Cast RTy String where
   cast FUNC = "functional"
   cast USAB = "usability"
   cast RELI = "reliability"
   cast PERF = "performance"
   cast SUPP = "supportability"
 
-instance Show RTy where
+implementation Show RTy where
   show FUNC = "FUNC"
   show USAB = "USAB"
   show RELI = "RELI"
@@ -31,14 +34,15 @@ readRTy s =
     "supportability" => Just SUPP
     otherwise        => Nothing
 
+public export
 data TTy = ADV  | DIS | GEN
 
-instance Show TTy where
+implementation Show TTy where
   show ADV = "ADVANTAGE"
   show DIS = "DISADVANTAGE"
   show GEN = "GENERAL"
 
-instance Cast TTy String where
+implementation Cast TTy String where
   cast ADV = "advantage"
   cast DIS = "disadvantage"
   cast GEN = "general"
@@ -51,13 +55,14 @@ readTTy s =
     "general"      => Just GEN
     otherwise      => Nothing
 
+public export
 data MTy = STRUCT | DYN
 
-instance Show MTy where
+implementation Show MTy where
   show STRUCT = "STRUCT"
   show DYN    = "DYN"
 
-instance Cast MTy String where
+implementation Cast MTy String where
   cast STRUCT = "structure"
   cast DYN    = "dynamic"
 
@@ -68,15 +73,17 @@ readMTy s =
     "dynamic"   => Just DYN
     otherwise   => Nothing
 
+public export
 data LTy = SPECIAL | IMPL | USES | LINK
 
-instance Show LTy where
+implementation Show LTy where
   show SPECIAL = "SPECIAL"
   show IMPL    = "IMPL"
   show USES    = "USES"
   show LINK    = "LINK"
 
-instance Cast LTy String where
+public export
+implementation Cast LTy String where
   cast SPECIAL = "specialises"
   cast IMPL    = "implements"
   cast USES    = "requires"
