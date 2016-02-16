@@ -82,6 +82,7 @@ convertModels (m::ms) = convertModel m ++ convertModels ms
 
 -- ---------------------------------------------------------------- [ Solution ]
 
+export
 convertSolution : Solution -> EddaBody
 convertSolution (MkSolution n d ms ps) =
        [section Nothing (Text "Solution" :: Colon :: Space :: n)]
@@ -104,6 +105,7 @@ convertReqs (m::ms) = convertReq m ++ convertReqs ms
 
 -- ----------------------------------------------------------------- [ Problem ]
 
+export
 convertProblem : Problem -> EddaBody
 convertProblem (MkProblem n d rs) =
     [section Nothing (Text "Problem" :: Colon :: Space :: n)]
@@ -115,6 +117,8 @@ convertProblem (MkProblem n d rs) =
 
 
 -- ----------------------------------------------------------------- [ Context ]
+
+export
 convertDomain : Context -> EddaBody
 convertDomain (MkContext t d) = tblock :: d
   where
@@ -123,6 +127,7 @@ convertDomain (MkContext t d) = tblock :: d
 
 -- ---------------------------------------------------------------- [ MetaData ]
 
+export
 convertMetadata : Metadata -> EddaBody
 convertMetadata mdata =
        [section Nothing [Text "Metadata"]]
@@ -143,12 +148,12 @@ convertMetadata mdata =
        ]
 
 -- ---------------------------------------------------------------- [ Evidence ]
-
+export
 convertEvidence : EddaBody -> EddaBody
 convertEvidence d = [section Nothing [Text "Evidence"]] ++ d
 
 -- ----------------------------------------------------------------- [ Studies ]
-
+export
 convertStudies : List Study -> EddaBody
 convertStudies ss = [section Nothing [Text "Case Studies"]]
     ++ concatMap convertStudy ss
