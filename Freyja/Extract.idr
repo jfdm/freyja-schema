@@ -42,7 +42,7 @@ metadata doc = do
 
 -- ------------------------------------------------------------ [ Requirements ]
 
-requirement : (ty : RTy) -> XMLNode -> Extract (Sigma RTy Requirement)
+requirement : (ty : RTy) -> XMLNode -> Extract (DPair RTy Requirement)
 requirement ty (Node e@(Element _ _ _)) = do
   n <- getEddaString e "name"
   d <- getEddaBlock  e "description"
@@ -74,7 +74,7 @@ problem doc = do
   rs <- requirements doc
   n <- getEddaString doc "/pattern/problem/name"
   d <- getEddaBlock  doc "/pattern/problem/description"
-  pure $ MkProblem n d (getProof rs)
+  pure $ MkProblem n d (snd rs)
 
 -- ----------------------------------------------------------------- [ Context ]
 
@@ -86,7 +86,7 @@ context doc = do
 
 -- ----------------------------------------------------------------- [ Affects ]
 
-tryGetReq : XMLElem -> Maybe (Sigma RTy Requirement)
+tryGetReq : XMLElem -> Maybe (DPair RTy Requirement)
 tryGetReq x = do
   naam <- getNodeName x
   ty   <- readRTy naam
@@ -94,15 +94,15 @@ tryGetReq x = do
     Left err => Nothing
     Right r  => pure r
 
-getReqByID : String -> List XMLNode -> Extract (Sigma RTy Requirement)
+getReqByID : String -> List XMLNode -> Extract (DPair RTy Requirement)
 getReqByID ival ns =
     case foldl doFind Nothing ns of
       Nothing => Left $ GeneralError ("Requirement not found.")
       Just r  => pure r
   where
-    doFind : Maybe (Sigma RTy Requirement)
+    doFind : Maybe (DPair RTy Requirement)
           -> XMLNode
-          -> Maybe (Sigma RTy Requirement)
+          -> Maybe (DPair RTy Requirement)
     doFind res (Node e@(Element _ _ _)) =
       case getAttribute "id" e of
         Nothing => res
@@ -127,7 +127,7 @@ affect _ _ = Left $ GeneralError "error"
 
 -- ------------------------------------------------------------------ [ Traits ]
 
-trait : XMLDoc -> TTy -> XMLNode -> Extract (Sigma TTy Trait)
+trait : XMLDoc -> TTy -> XMLNode -> Extract (DPair TTy Trait)
 trait doc ty (Node e@(Element _ _ _)) = do
   n   <- getEddaString e "//name"
   d   <- getEddaBlock  e "//description"
@@ -154,7 +154,7 @@ property doc (Node e@(Element _ _ _)) = do
 
   let ts' = as' ++ ds' ++ gs'
 
-  pure $ MkProperty n d (getProof $ DList.fromLDP ts')
+  pure $ MkProperty n d (snd $ DList.fromLDP ts')
 property _ _ = Left $ GeneralError "error"
 
 properties : XMLDoc -> Extract (List Property)
@@ -165,7 +165,7 @@ properties doc = do
 
 -- ------------------------------------------------------------------ [ Models ]
 
-model : MTy -> XMLNode -> Extract (Sigma MTy Model)
+model : MTy -> XMLNode -> Extract (DPair MTy Model)
 model ty (Node e@(Element _ _ _)) = do
   n <- getEddaString e "//name"
   d <- getEddaBlock  e "//description"
@@ -197,7 +197,7 @@ solution doc = do
   ms <- models doc
   ps <- properties doc
 
-  pure $ MkSolution n d (getProof ms) ps
+  pure $ MkSolution n d (snd ms) ps
 
 -- ----------------------------------------------------------------- [ Studies ]
 
@@ -226,7 +226,7 @@ getMaybeDesc n = do
         Left  err => Nothing
         Right res => Just res
 
-relation : XMLNode -> Extract (Sigma LTy Relation)
+relation : XMLNode -> Extract (DPair LTy Relation)
 relation (Node e@(Element _ _ _)) = do
     ty <- extractTy e
     f <- getNamedAttr e "patternID" (with List concat ["//", cast ty ])
@@ -265,6 +265,6 @@ document doc = do
   s <- solution doc
   ss <- studies doc
   rs <- relations doc
-  pure $ MkPDoc n d m c p s e ss (getProof rs)
+  pure $ MkPDoc n d m c p s e ss (snd rs)
 
 -- --------------------------------------------------------------------- [ EOF ]
